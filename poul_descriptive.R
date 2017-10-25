@@ -4,7 +4,7 @@ library(gridExtra)
 library(MASS)
 library(pscl)
 
-poultry <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/poultry_clean.csv")
+poultry <- read.csv("file_path/poultry_clean.csv")
 
 ## how many of each serovar are there? Which need to be removed? ####
 sal_sum <- data.frame(table(poultry$Salmonella))
@@ -859,7 +859,7 @@ str(sens_test)
 table(sens_test$MultiResistant)
 poul_resist <- dplyr::select(sens_test, Year, Salmonella, resist, sensit, inter, tested)
 
-write.csv(poul_resist, "C:/Users/afbi-porters/Documents/Salmonella_gen/resistance_testing/poul_resist.csv")
+write.csv(poul_resist, "file_path/poul_resist.csv")
 
 ## plot resistance over time
 names(sensitivity)
