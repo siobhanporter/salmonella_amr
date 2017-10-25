@@ -1,16 +1,16 @@
 library(tidyverse)
 
 ## pull all data together into one df
-pig_D1 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults1998.csv")
-pig_D2 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults1999.csv")
-pig_D3 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2000.csv")
-pig_D4 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2001.csv")
-pig_D5 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2002.csv")
-pig_D6 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2003.csv")
-pig_D7 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2004.csv")
-pig_D8 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2005.csv")
-pig_D9 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2006.csv")
-pig_D10 <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_misc/all_salmonella_results98_2007/SalmonellaResults2007.csv")
+pig_D1 <- read.csv("file_path/SalmonellaResults1998.csv")
+pig_D2 <- read.csv("file_path/SalmonellaResults1999.csv")
+pig_D3 <- read.csv("file_path/SalmonellaResults2000.csv")
+pig_D4 <- read.csv("file_path/SalmonellaResults2001.csv")
+pig_D5 <- read.csv("file_path/SalmonellaResults2002.csv")
+pig_D6 <- read.csv("file_path/SalmonellaResults2003.csv")
+pig_D7 <- read.csv("file_path/SalmonellaResults2004.csv")
+pig_D8 <- read.csv("file_path/SalmonellaResults2005.csv")
+pig_D9 <- read.csv("file_path/SalmonellaResults2006.csv")
+pig_D10 <- read.csv("file_path/SalmonellaResults2007.csv")
 
 # why the f do 9 and 10 have 2 fewer columns
 # need to remove 'SampleDesc' and 'Batch' from the others - eyeroll
