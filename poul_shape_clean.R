@@ -2,10 +2,10 @@ library(tidyverse)
 
 # compile data ####
 
-y93_98 <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/raw_data/01_01_93_09_08_98.csv")
-y98_07 <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/raw_data/10_08_98_31_12_07.csv")
-y08_14 <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/raw_data/01_01_08_31_12_14.csv")
-y15_17 <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/raw_data/01_01_15_13_06_17.csv")
+y93_98 <- read.csv("file_path/01_01_93_09_08_98.csv")
+y98_07 <- read.csv("file_path/10_08_98_31_12_07.csv")
+y08_14 <- read.csv("file_path/01_01_08_31_12_14.csv")
+y15_17 <- read.csv("file_path/01_01_15_13_06_17.csv")
 
 names(y93_98)
 names(y98_07)
@@ -14,7 +14,7 @@ names(y15_17)
 
 poul_sal <- rbind(y93_98, y98_07, y08_14, y15_17)
 
-#write.csv(poul_sal, "C:/Users/afbi-porters/Documents/sallmonella_poultry/raw_data/raw_all.csv")
+#write.csv(poul_sal, "file_path/raw_all.csv")
 
 ## remove records that aren't 'isolates' but keep those w/AMR testing ####
 table(poul_sal$Isolate)
@@ -35,13 +35,11 @@ iso <- droplevels(filter(poul_sal, Isolate == "Isolate"))
 
 all_iso <- rbind(amr_T, iso) 
 
-
 #! will have to remove duplicate CaseId and Salmonella...
-
 
 ## remove records from Monaghan ####
 table(all_iso$Vet)
-ni_recs <- filter(all_iso, Vet != "Monaghan Vet Labs (ROI)")
+ni_recs <- filter(all_iso, Vet != "*vet_name*")
 
 ## unify Salmonella names ####
 table(ni_recs$Salmonella)
@@ -141,16 +139,13 @@ mono <- semi_join(ni_recs, mst, by = "CaseId")
 dup_mono <- mono[allDup(mono$CaseId), ]
 
 # Remove non-typhus from these...
-dmono1 <- filter(dup_mono, Salmonella != "S.Mbandaka")
-dmono2 <- filter(dmono1, Salmonella != "S.Gold-coast")
-dmono3 <- filter(dmono2, Salmonella != "S.Takoradi")
-dmono4 <- filter(dmono3, Salmonella != "S.Kottbus")
+dmono <- dup_mono %>% filter(!Salmonella %in% c("S.Mbandaka", "S.Gold-coast", "S.Takoradi", "S.Kottbus"))
 
 # Look for those with the same sample id to remove duplicates
-mp_cases <- select(dmono4, SampleId)
+mp_cases <- select(dmono, SampleId)
 mp_cases_dups <- duplicated(mp_cases)
 
-iddups <- cbind(dmono4, mp_cases_dups)
+iddups <- cbind(dmono, mp_cases_dups)
 
 # remove duplicates
 id_mono_clean <- filter(iddups, mp_cases_dups == "FALSE")
@@ -190,25 +185,16 @@ sal_names <- rbind(typh_mono, non_typh, not_mono)
 
 ## remove non-typed Samlmonella ####
 table(sal_names$Salmonella)
-sal_name <- droplevels(filter(sal_names, Salmonella != "S.Spp (unnamed)"))
-sal_name2 <- droplevels(filter(sal_name, Salmonella != "S.Spp (final)"))
-sal_name3 <- droplevels(filter(sal_name2, Salmonella != "S.Spp"))
-sal_name4 <- droplevels(filter(sal_name3, Salmonella != "S.spp"))
-sal_name5 <- droplevels(filter(sal_name4, Salmonella != "S.Unnamed"))
-sal_name6 <- droplevels(filter(sal_name5, Salmonella != "S.spp (unnamed)"))
-sal_name7 <- droplevels(filter(sal_name6, Salmonella != "S.unnamed"))
-sal_name8 <- droplevels(filter(sal_name7, Salmonella != "SALMANI"))
-sal_name9 <- droplevels(filter(sal_name8, Salmonella != "SALMENS"))
 
+sal_name <- sal_names %>% filter(!Salmonella %in% c("S.Spp (final)", "S.Spp", "S.spp", "S.Unnamed", "S.spp (unnamed)", "S.unnamed", "SALMANI", "SALMENS"))
 
 ## Is there replication of SampleId and Salmonella? - NO ####
-sampleids <- sal_name9
+sampleids <- sal_name
 
 samps <- select(sampleids, SampleId, Salmonella)
 samp_dups <- data.frame(duplicated(samps))
 
 table(samp_dups$duplicated.samps.)
-
 
 
 ## Remove replication of CaseId, Tag and Salmonella ####
@@ -230,8 +216,6 @@ tag_id_sal_clean <- anti_join(sampleids, tag_id_sal_t, by = "ID")
 
 poul_data <- tag_id_sal_clean
 str(poul_data)
-
-
 
 
 ## Sort out 'hash' records ####
@@ -258,8 +242,6 @@ hash_clean <- anti_join(poul_data, hash_sing, by = "ID")
 
 poul_dt <- hash_clean
 
-
-
 ## Remove Salmonella Enteritidis vaccine strains ####
 # post 2007, layers with phage type 4 (LC, LG, LP)
 
@@ -269,10 +251,6 @@ pd_phage <- filter(pd_layers, Phage %in% c("4", "PT 4b", "PT 4"))
 
 # remove from dataset
 vf_poul <- anti_join(poul_dt, pd_phage, by = "ID")
-
-
-
-
 
 
 ## Remove broilers resampled in < 8 weeks ####
@@ -287,10 +265,6 @@ broilers <- rbind(broil, o_broil)
 broil_reps <- select(broilers, Year, Month, CaseId, Owner, Salmonella, Tag, ID, OwnerAddress)
 
 # replicate testing and testing in < 8 week intervals00
-
-heslip <- broil_reps %>%
-  filter(grepl("eslip", Owner, ignore.case = TRUE)) %>%
-  droplevels
 
 id_reps <- data.frame(c(2796, 3886, 2562, 2271, 2476, 2776, 2792, 2621, 2622, 2657, 2540, 392, 2583, 2733, 2619, 1411, 1449, 3125, 2698, 2587, 2267, 1960, 1928, 3304, 728, 874, 875, 876, 1956, 1964, 3419, 3309, 3346, 1412, 3360, 137, 4672, 5077, 4725, 4835, 4791, 4819, 4787, 4788, 4803, 4577, 4576, 5097, 5540, 5558, 2611, 3302, 3484, 1975, 2786, 2781, 2794, 4082, 3900, 3872, 3969, 3970, 3972, 3973, 3964, 4023, 4084, 4144, 3890, 3891, 3968, 4187, 4062, 4063, 3849, 4365, 4330, 3917, 4238, 4239, 3873, 4228, 3946, 4206, 3676, 4015, 4016, 3867, 4983, 5522, 5498, 4763, 5189, 4868, 5446, 4372, 13, 14, 15, 16, 17, 4379, 4380, 4382, 4383, 4385, 4387, 18, 4404, 4408, 4411, 4412, 111, 4590, 132, 4657, 4683, 4710, 162, 164, 4809, 4810, 4816, 4828)) 
 
@@ -325,8 +299,6 @@ colnames(rem) <- "ID"
 
 no_reps <- anti_join(case_reps, rem, by = "ID")
 
-
-
 ## remove vaccine records ####
 poultry_no_reps <- droplevels(filter(no_reps, Salmonella != "S.Enteritidis vaccine strain"))
 
@@ -335,168 +307,4 @@ poultry <- filter(poultry_no_reps, Year > 1994)
 
 ## write out data ####
 
-write.csv(poultry, "C:/Users/afbi-porters/Documents/sallmonella_poultry/poultry_clean.csv")
-
-
-## left overs ####
-# based on case ID? ## may be better to do sampleId and Salmonella?
-
-# are SampleIds unique?
-#str(poul_sal)
-#dup_sampleid <- sal_names[allDup(sal_names$SampleId), ] # no!! 82 dups
-# remove same sampleId and same salmomella
-#id_sal <- select(poul_sal, SampleId, Salmonella)
-#id_sal_dup <- duplicated(id_sal)
-#table(id_sal_dup) # no duplicates
-
-#check this worked...
-#filter(tst, ID == 17)
-#tst2 <- select(tst, "CaseId", "Tag", "Salmonella")
-#tag_id_dup <- duplicated(tst2)
-#table(tag_id_dup)
-
-# repeat of same isolate at same farms?
-#table(tag_id_sal_clean$Owner)
-#table(sal_no_dups$OwnerAddress) # more missing owner_address than owners
-
-#owners <- data.frame(table(tag_id_sal_clean$Owner))
-
-# filter out moy park records?
-## need to decide on the nature of these data, and the question being asked
-## If it is about incidence, maybe keep all of these observations?
-
-#moy_park <- poultry %>%
- #filter(grepl("Moy", Owner, ignore.case = TRUE)) %>%
-  #droplevels
-
-# are there food in samples after 2006
-
-#pre <- droplevels(filter(moy_park, Year < 1995))
-
-#table(pre$Tag)
-
-#post <- droplevels(filter(moy_park, Year > 1994))
-#table(post$Tag)
-
-
-# select out rest of df
-#rest <- tag_id_sal_clean %>%
- # filter(!grepl("Moy", Owner, ignore.case = TRUE)) %>%
-  #droplevels
-
-# address == moy
-#moy_park2 <- rest %>%
- # filter(grepl("Moy", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-#rest2 <- rest %>%
- # filter(!grepl("Moy", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# vet == moy park
-#moy_park3 <- rest2 %>%
- # filter(grepl("Moy", Vet, ignore.case = TRUE)) %>%
-  #droplevels
-
-#rest3 <- rest2 %>%
- # filter(!grepl("Moy", Vet, ignore.case = TRUE)) %>%
-  #droplevels
-
-# 63% of poultry data is Moy... 
-#moy <- rbind(moy_park, moy_park2, moy_park3)
-
-# moy park records in Craigavon
-#craig <- moy_park %>%
- # filter(grepl("aigavon", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# rest of moy records (not craigavon)
-#moy_r <- moy_park %>%
- # filter(!grepl("aigavon", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# Seagoe address is still Cragavon
-#seag <- moy_r %>%
- # filter(grepl("eagoe", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# rest of moy records 
-#moy_r1 <- moy_r %>%
- # filter(!grepl("eagoe", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-#table(seag$OwnerAddress)
-
-#table(craig$OwnerAddress)
-
-# change these to same address...
-#craig$OwnerAddress <- "39 Seagoe Industrial Estate, Craigavon, BT63 5QE"
-#seag$OwnerAddress <- "39 Seagoe Industrial Estate, Craigavon, BT63 5QE"
-
-
-# clean craigavon moy records 
-#p_clean <- craig
-#p_clean1 <- rbind(p_clean, seag)
-
-## rest of Moy records
-#table(moy_r1$OwnerAddress)
-
-# Coolhill, dungannon and killyman
-#cool <- moy_r1 %>%
- # filter(grepl("coolhill", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# rest of moy records (not dungannon)
-#moy_r2 <- moy_r1 %>%
- # filter(!grepl("coolhill", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# Seagoe address is still dungannon
-#dunn <- moy_r2 %>%
- # filter(grepl("dungannon", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# rest of moy records 
-#moy_r3 <- moy_r2 %>%
- # filter(!grepl("dungannon", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-#table(moy_r2$OwnerAddress)
-
-#cool$OwnerAddress <- "173 Killyman Rd, Dungannon BT71 6LN"
-#dunn$OwnerAddress <- "173 Killyman Rd, Dungannon BT71 6LN"
-
-#p_clean2 <- rbind(p_clean1, cool, dunn)
-
-## rest of moys
-#table(moy_r3$OwnerAddress)
-
-#moira <- moy_r3 %>%
- # filter(grepl("moira", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-#moy_r4 <- moy_r3 %>%
- # filter(!grepl("moira", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-#table(moira$OwnerAddress)
-
-#moira$OwnerAddress <- "9 Meeting Street, Moira, BT67 0NR"
-
-#p_clean3 <- rbind(p_clean2, moira)
-
-#table(blanks$Owner)
-
-#who owns the ones without addresses?
-#blanks <- moy_r4 %>%
- # filter(grepl("", OwnerAddress, ignore.case = TRUE)) %>%
-  #droplevels
-
-# find owners with multiple incidence of the same salmonella, why are these a mess?
-# Is there more of a mess here or with addresses?
-
-# then try to ID same flocks sampled within 8 weeks?
-
-# Anything else need removed?
-
-#un <- droplevels(filter(poultry, Flock == "UN"))
+write.csv(poultry, "file_path.csv")
