@@ -2,14 +2,14 @@ library(tidyverse)
 
 ## compile data ####
 
-y93_98 <- read.csv("C:/Users/afbi-porters/Documents/salmonella_pigs/raw_data/01_01_93_09_08_98.csv")
-y98_07 <- read.csv("C:/Users/afbi-porters/Documents/salmonella_pigs/raw_data/10_08_98_31_12_07.csv")
-y08_14 <- read.csv("C:/Users/afbi-porters/Documents/salmonella_pigs/raw_data/01_01_08_31_12_14.csv")
-y15_17 <- read.csv("C:/Users/afbi-porters/Documents/salmonella_pigs/raw_data/01_01_15_16_06_17.csv")
+y93_98 <- read.csv("file_path/01_01_93_09_08_98.csv")
+y98_07 <- read.csv("file_path/10_08_98_31_12_07.csv")
+y08_14 <- read.csv("file_path/01_01_08_31_12_14.csv")
+y15_17 <- read.csv("file_path/01_01_15_16_06_17.csv")
 
 pigs_sal <- rbind(y93_98, y98_07, y08_14, y15_17)
 
-#write.csv(pigs_sal, "C:/Users/afbi-porters/Documents/salmonella_pigs/raw_data/pig_raw_all.csv")
+#write.csv(pigs_sal, "file_path/pig_raw_all.csv")
 
 ## remove records that aren't 'isolates' but keep those w/AMR testing ####
 table(pigs_sal$Isolate)
@@ -35,7 +35,7 @@ all_iso <- rbind(amr_T, iso)
 ## Are all records from NI? ####
 table(all_iso$Vet)
 
-ni_recs <- all_iso %>% filter(!Vet %in% c("Monaghan Vet Labs (ROI)", "Kiernan Milling (ROI)", "Sparrow D (ROI)", "Oldcastle Labs (ROI) Kavanagh NT", "Mills Vet (D Brady - ROI)"))
+ni_recs <- all_iso %>% filter(!Vet %in% c("**vets name**", "**vets name**", "**etc**"))
 
 table(ni_recs$Vet)
 
@@ -87,7 +87,7 @@ allDup <- function (value) {
 
 ## update those later determined as monophasic ####
 
-mono <- read.csv("C:/Users/afbi-porters/Documents/salmonella_pigs/pigs_monophasic.csv")
+mono <- read.csv("file_path/pigs_monophasic.csv")
 
 # cases in original data later confirmed as MST
 mps <- semi_join(ni_recs, mono, by = "CaseId")
@@ -257,4 +257,4 @@ north_recs <- anti_join(pig_farm_check, roi, by = 'id')
 ## write out clean data ####
 clean_pigs <- north_recs
 
-write.csv(clean_pigs, "C:\\Users\\afbi-porters\\Documents\\salmonella_pigs\\pigs_clean.csv")
+write.csv(clean_pigs, "file_path\\pigs_clean.csv")
