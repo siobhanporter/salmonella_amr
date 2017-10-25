@@ -1,7 +1,7 @@
 library(tidyverse)
 
-pigs <- read.csv("C:\\Users\\afbi-porters\\Documents\\salmonella_pigs\\pigs_clean.csv")
-poultry <- read.csv("C:/Users/afbi-porters/Documents/sallmonella_poultry/poultry_clean.csv")
+pigs <- read.csv("file_path\\pigs_clean.csv")
+poultry <- read.csv("file_path/poultry_clean.csv")
 
 ## relative proportional frequency of  top serovars ####
 pig_rate <- droplevels(filter(pigs, Salmonella %in% c("S.Typhimurium", "S.Derby", "Monophasic S.Typhimurium", "S.Give", "S.Choleraesuis")))
@@ -58,8 +58,8 @@ ggplot(poul_year_sum, aes(Year, freq, fill = Salmonella)) +
 
 
 ## levels of amr in pigs and poultry ####
-poul_resist <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_gen/resistance_testing/poul_resist.csv")
-pig_resist <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_gen/resistance_testing/pig_resist.csv")
+poul_resist <- read.csv("file_path/poul_resist.csv")
+pig_resist <- read.csv("file_path/pig_resist.csv")
 
 # poultry
 ggplot(poul_resist, aes(Year, resist)) +
@@ -181,10 +181,10 @@ pig_resist <- dplyr::select(sens_test, Year, Salmonella, resist, sensit, inter, 
 
 table(pig_resist$tested)
 
-write.csv(pig_resist, "C:/Users/afbi-porters/Documents/Salmonella_gen/resistance_testing/pig_resist.csv")
+write.csv(pig_resist, "file_path/pig_resist.csv")
 
 ## comparing resistance over time between pigs and poultry ####
-poul_resist <- read.csv("C:/Users/afbi-porters/Documents/Salmonella_gen/resistance_testing/poul_resist.csv")
+poul_resist <- read.csv("file_path/poul_resist.csv")
 
 poul_resist$Salmonella <- as.character(poul_resist$Salmonella)
 poul_resist$Salmonella[poul_resist$Salmonella == "Monophasic Salmonella Typhimurium"] <- "Monophasic S.Typhimurium"
